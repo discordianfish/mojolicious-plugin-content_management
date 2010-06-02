@@ -72,7 +72,15 @@ sub register {
         }
     });
 
-    # TODO helper bauen für exists, list und load
+    # Helper generation for source methods
+    for my $method (qw( exists list load )) {
+
+        $app->renderer->add_helper( "content_$method" => sub {
+            my ($self, $path) = @_;
+            return $source->$method($path)
+        });
+    }
+
     $app->log( debug => 'Content Management initiated' );
 }
 
