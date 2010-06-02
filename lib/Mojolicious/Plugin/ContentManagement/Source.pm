@@ -7,7 +7,7 @@ use base 'Mojo::Base';
 
 use Carp;
 
-__PACKAGE__->attr([qw( app type )]);
+__PACKAGE__->attr([qw( app type forbidden )]);
 
 sub exists  { croak 'Method unimplemented by subclass!' }
 
@@ -52,6 +52,14 @@ The Mojolicious app object
     $source  = $source->type($type);
 
 The management content type translator object (needed to build pages)
+
+=head2 forbidden
+
+    my @forbidden = @{ $source->forbidden };
+    $source       = $source->forbidden([ 'foo', qr(foo/.*) ]);
+
+An array ref of paths, that must not be managed. Can contain strings and
+regular expressions
 
 =head1 METHODS
 

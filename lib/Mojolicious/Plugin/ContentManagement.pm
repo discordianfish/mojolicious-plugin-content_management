@@ -52,8 +52,9 @@ sub register {
     my $source_conf = $conf->{source_conf} || {};
     my $source = $source_class->new({
         %$source_conf,
-        app     => $app,
-        type    => $type,
+        app         => $app,
+        type        => $type,
+        forbidden   => $conf->{forbidden} || [],
     });
 
     $app->plugins->add_hook( before_dispatch => sub {
@@ -72,7 +73,7 @@ sub register {
     });
 
     # TODO helper bauen für exists, list und load
-    # TODO $app->log( debug => 'Content Management initiated' )
+    $app->log( debug => 'Content Management initiated' );
 }
 
 !! 42;

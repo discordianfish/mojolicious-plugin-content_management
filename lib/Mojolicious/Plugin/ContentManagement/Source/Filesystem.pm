@@ -23,16 +23,19 @@ sub _children {
         next if /^\./;
         my $name = File::Spec->catdir($path, $entry);
 
+        # Calculate path
+        my $cdir    = $self->app->home->rel_dir($self->directory);
+        (my $rname  = $name) =~ s/^$cdir// or croak 'Whoops!';
+        my @parts   = File::Spec->splitdir($rname);
+        s/^(\d+-)?// for @parts;
+        my $ppath   = '/' . join '/' => @parts;
+
+        # Check for forbidden paths
+        next if grep { $ppath =~ /^$_$/ } @{$self->forbidden};
+
         # Page found
         if (-f $name && -r $name) {
             
-            # Calculate path
-            my $cdir    = $self->app->home->rel_dir($self->directory);
-            (my $rname  = $name) =~ s/^$cdir// or croak 'Whoops!';
-            my @parts   = File::Spec->splitdir($rname);
-            s/^(\d+-)?// for @parts;
-            my $ppath   = '/' . join '/' => @parts;
-
             # Retrieve content
             my $content = Mojo::Asset->new(path => $name)->slurp;
             my $html    = $self->type->translate($content);
@@ -49,13 +52,6 @@ sub _children {
 
         # Directory found
         elsif (-d $name && -x $name) {
-
-            # Calculate path
-            my $cdir    = $self->app->home->rel_dir($self->directory);
-            (my $rname  = $name) =~ s/^$cdir// or croak 'Whoops';
-            my @parts   = File::Spec->splitdir($rname);
-            s/^(\d+-)?// for @parts;
-            my $ppath   = '/' . join '/' => @parts;
 
             # Build empty page with children
             push @children, Mojolicious::Plugin::ContentManagement::Page->new({
