@@ -7,8 +7,9 @@ use base 'Mojo::Base';
 
 use List::Util 'first';
 
-__PACKAGE__->attr([qw( path title html children )]);
-__PACKAGE__->attr( data => sub { {} } );
+__PACKAGE__->attr([qw( path title html )] => '');
+__PACKAGE__->attr( children => sub { [] } );
+__PACKAGE__->attr( data     => sub { {} } );
 
 sub find {
     my ($self, $path) = @_;
