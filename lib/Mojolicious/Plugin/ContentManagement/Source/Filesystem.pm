@@ -39,7 +39,7 @@ sub _children {
             # Retrieve content
             my $content = Mojo::Asset::File->new(path => $name)->slurp;
             my $html    = $self->type->translate($content);
-            my $title   = ($html =~ m|<h1>(.*?)</h1>|) ? $1 : $path;
+            my $title   = ($html =~ m|<h1>(.*?)</h1>|) ? $1 : $ppath;
 
             # Build page
             push @children, Mojolicious::Plugin::ContentManagement::Page->new({
