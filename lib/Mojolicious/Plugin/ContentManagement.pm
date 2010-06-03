@@ -11,13 +11,57 @@ use Carp;
 use Mojo::ByteStream 'b';
 use Mojo::Loader;
 
+__PACKAGE__->attr('app');
+__PACKAGE__->attr( conf     => sub { {} } );
+__PACKAGE__->attr( source   => sub { shift->_load->source } );
+__PACKAGE__->attr( type     => sub { shift->_load->type } );
+
 # I believe that qualifies as ill.
 # At least from a technical standpoint.
 sub register {
     my ($self, $app, $conf) = @_;
 
+    $self->app($app);
+    $self->conf($conf) if $conf;
+
+    # Closure data
+    my $page;
+
+    # Push page to stash if available
+    $app->plugins->add_hook( before_dispatch => sub {
+        my ($s, $c) = @_;
+        my $path = $c->tx->req->url->path->to_string;
+        undef $page;
+
+        $c->stash( page => $page = $self->source->load($path) )
+            if $self->source->exists($path);
+    });
+
+    # Routes condition to detect managed content
+    $app->routes->add_condition( content_management => sub {
+        my ($route, $tx, $captures, $arg) = @_;
+
+        return $captures if $arg && $page;
+        return;
+    });
+
+    # Helper generation for source methods
+    for my $method (qw( exists list load )) {
+
+        $app->renderer->add_helper( "content_$method" => sub {
+            my ($c, $path) = @_;
+            return $self->source->$method($path)
+        });
+    }
+
+    return unless $conf->{admin_route};
+}
+
+sub _load {
+    my $self = shift;
+
     # Default configuration
-    $conf ||= {};
+    my $conf = $self->conf;
     $conf->{type}   ||= 'plain';
     $conf->{source} ||= 'filesystem';
 
@@ -33,10 +77,10 @@ sub register {
 
     # Instantiate content type
     my $type_conf = $conf->{type_conf} || {};
-    my $type = $type_class->new({
+    $self->type($type_class->new({
         %$type_conf,
-        app => $app,
-    });
+        app => $self->app,
+    }));
 
     # Build source class name
     my $source_class = __PACKAGE__ . '::Source';
@@ -50,42 +94,12 @@ sub register {
 
     # Instantiate content source
     my $source_conf = $conf->{source_conf} || {};
-    my $source = $source_class->new({
+    $self->source($source_class->new({
         %$source_conf,
-        app         => $app,
-        type        => $type,
+        app         => $self->app,
+        type        => $self->type,
         forbidden   => $conf->{forbidden} || [],
-    });
-
-    # Closure page
-    my $page;
-
-    # Push page to stash if available
-    $app->plugins->add_hook( before_dispatch => sub {
-        my ($self, $c) = @_;
-        my $path = $c->tx->req->url->path->to_string;
-        undef $page;
-
-        $c->stash( page => $page = $source->load($path) )
-            if $source->exists($path);
-    });
-
-    # Routes condition to detect managed content
-    $app->routes->add_condition( content_management => sub {
-        my ($route, $tx, $captures, $arg) = @_;
-
-        return $captures if $arg && $page;
-        return;
-    });
-
-    # Helper generation for source methods
-    for my $method (qw( exists list load )) {
-
-        $app->renderer->add_helper( "content_$method" => sub {
-            my ($self, $path) = @_;
-            return $source->$method($path)
-        });
-    }
+    }));
 }
 
 !! 42;
@@ -101,9 +115,29 @@ Version 0.01
 
 =head1 SYNOPSIS
 
-    do something crazy
+    use Mojolicious::Lite;
+
+    plugin content_management => {
+        source      => 'filesystem',
+        source_conf => { directory => 'content' },
+        type        => 'markdown',
+        type_conf   => { empty_element_suffix => '>' },
+        forbidden   => [ '/foo.html', qr|/bar/\d{4}/baz.html| ],
+    };
+
+    get '/(*everything)' => ( content_management => 1 ) => 'page';
+
+    #...
+
+    __DATA__
+
+    @@ page.html.ep
+    % layout 'default';
+    %== $page->html;
 
 =head1 DESCRIPTION
+
+This is a simple but flexible content management solution for Mojolicious.
 
 =head1 BUGS
 
