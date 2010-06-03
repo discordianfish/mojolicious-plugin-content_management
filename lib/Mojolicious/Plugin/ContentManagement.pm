@@ -86,8 +86,6 @@ sub register {
             return $source->$method($path)
         });
     }
-
-    $app->log->log( debug => 'Content Management initiated' );
 }
 
 !! 42;
