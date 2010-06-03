@@ -14,7 +14,7 @@ plugin content_management => {
 };
 
 # Managed content goes to the template 'page'
-get '/(*everything)' => ( content_management => 2 ) => 'page';
+get '/(*everything)' => ( content_management => 1 ) => 'page';
 
 # Calm down, please!
 app->log->level('error');
