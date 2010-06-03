@@ -16,16 +16,6 @@ __END__
 
 Mojolicious::Plugin::ContentManagement::Type - abstract managed content type
 
-=head1 SYNOPSIS
-
-    package Mojolicious::Plugin::ContentManagement::Type::Foo;
-    use base 'Mojolicious::Plugin::ContentManagement::Type';
-
-    sub translate {
-        my ($self, $input) = @_;
-        return do_something_with($input);
-    }
-
 =head1 DESCRIPTION
 
 A Mojolicious::Plugin::ContentManagement::Type is a thing that can translate

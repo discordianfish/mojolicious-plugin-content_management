@@ -25,7 +25,7 @@ __PACKAGE__->attr( markdown => sub {
 sub translate {
     my ($self, $input) = @_;
     return $self->markdown->markdown($input);
-};
+}
 
 !! 42;
 __END__
@@ -61,4 +61,5 @@ Markdown translation.
 
 =head1 SEE ALSO
 
-L<Mojolicious::Plugin::ManagedContent>, L<Text::Markdown>
+L<Mojolicious::Plugin::ManagedContent>,
+L<Mojolicious::Plugin::ManagedContent::Type>, L<Text::Markdown>

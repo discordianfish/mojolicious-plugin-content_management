@@ -157,7 +157,7 @@ define the ordering.
 
 =head1 METHODS
 
-This class implements the following methods according to its abstract base class
+This class implements the abstract methods of its base class 
 L<Mojolicious::Plugin::ContentManagement::Source> 
 
 There's one more method:

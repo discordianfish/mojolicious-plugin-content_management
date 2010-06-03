@@ -8,7 +8,7 @@ use base 'Mojolicious::Plugin::ContentManagement::Type';
 sub translate {
     my ($self, $input) = @_;
     return $input;
-};
+}
 
 !! 42;
 __END__
@@ -35,4 +35,5 @@ The identity function.
 
 =head1 SEE ALSO
 
-L<Mojolicious::Plugin::ManagedContent>
+L<Mojolicious::Plugin::ManagedContent>,
+L<Mojolicious::Plugin::ManagedContent::Type>

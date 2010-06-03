@@ -22,16 +22,6 @@ __END__
 
 Mojolicious::Plugin::ContentManagement::Source - abstract source base class
 
-=head1 SYNOPSIS
-
-    package 'Mojolicious::Plugin::ContentManagement::Source::Foo';
-    use base 'Mojolicious::Plugin::ContentManagement::Source';
-
-    sub exists {
-        my ($self, $path) = @_;
-        return 1 if ...
-    }
-
 =head1 DESCRIPTION
 
 A Mojolicious::Plugin::ContentManagement::Source is a thing that can load
