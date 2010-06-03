@@ -22,11 +22,11 @@ sub register {
     $conf->{source} ||= 'filesystem';
 
     # Build type class name
-    my $type_class = __PACKAGE__ . '::Source';
+    my $type_class = __PACKAGE__ . '::Type';
     $type_class .= '::' . b($conf->{type})->camelize;
 
     # Try to load type
-    $e = Mojo::Loader->load($type_class);
+    my $e = Mojo::Loader->load($type_class);
     croak   'Could\'t load content management type '
           . "'$conf->{type}' (class name: $type_class)"
         if $e;
@@ -43,7 +43,7 @@ sub register {
     $source_class .= '::' . b($conf->{source})->camelize;
 
     # Try to load source
-    my $e = Mojo::Loader->load($source_class);
+    $e = Mojo::Loader->load($source_class);
     croak   'Couldn\'t load content management source '
           . "'$conf->{source}' (class name: $source_class)"
         if $e;
@@ -57,19 +57,25 @@ sub register {
         forbidden   => $conf->{forbidden} || [],
     });
 
+    # Closure page
+    my $page;
+
+    # Push page to stash if available
     $app->plugins->add_hook( before_dispatch => sub {
         my ($self, $c) = @_;
-
         my $path = $c->tx->req->url->path->to_string;
+        undef $page;
 
-        if ($source->exists($path)) {
+        $c->stash( page => $page = $source->load($path) )
+            if $source->exists($path);
+    });
 
-            # Build the page
-            my $res = $c->tx->res;
-            my $content_type = $conf->{content_type} || 'text/html';
-            $res->code(200)->headers->content_type($content_type);
-            $res->body($source->load($path)->html);
-        }
+    # Routes condition to detect managed content
+    $app->routes->add_condition( content_management => sub {
+        my ($route, $tx, $captures, $arg) = @_;
+
+        return $captures if $arg && $page;
+        return;
     });
 
     # Helper generation for source methods
@@ -81,7 +87,7 @@ sub register {
         });
     }
 
-    $app->log( debug => 'Content Management initiated' );
+    $app->log->log( debug => 'Content Management initiated' );
 }
 
 !! 42;

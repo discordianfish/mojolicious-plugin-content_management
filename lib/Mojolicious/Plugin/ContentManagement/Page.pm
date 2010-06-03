@@ -13,8 +13,9 @@ __PACKAGE__->attr( data => sub { {} } );
 sub find {
     my ($self, $path) = @_;
 
-    # Shortcut
+    # Shortcuts
     return $self if $path eq $self->path;
+    return unless $self->children;
 
     # Ask the children
     for my $child (@{$self->children}) {

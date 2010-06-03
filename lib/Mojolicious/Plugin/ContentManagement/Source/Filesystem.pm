@@ -20,7 +20,7 @@ sub _children {
     my @children = ();
 
     while (my $entry = readdir $dirh) { 
-        next if /^\./;
+        next if $entry =~ /^\./;
         my $name = File::Spec->catdir($path, $entry);
 
         # Calculate path
@@ -28,7 +28,7 @@ sub _children {
         (my $rname  = $name) =~ s/^$cdir// or croak 'Whoops!';
         my @parts   = File::Spec->splitdir($rname);
         s/^(\d+-)?// for @parts;
-        my $ppath   = '/' . join '/' => @parts;
+        my $ppath   = join '/' => @parts;
 
         # Check for forbidden paths
         next if grep { $ppath =~ /^$_$/ } @{$self->forbidden};
@@ -37,7 +37,7 @@ sub _children {
         if (-f $name && -r $name) {
             
             # Retrieve content
-            my $content = Mojo::Asset->new(path => $name)->slurp;
+            my $content = Mojo::Asset::File->new(path => $name)->slurp;
             my $html    = $self->type->translate($content);
             my $title   = ($html =~ m|<h1>(.*?)</h1>|) ? $1 : $path;
 
@@ -98,9 +98,9 @@ sub build_tree {
     my $dir = $self->app->home->rel_dir($self->directory);
 
     # Build the root "page"
-    $self->tree = Mojolicious::Plugin::ContentManagement::Page->new({
+    $self->tree(Mojolicious::Plugin::ContentManagement::Page->new({
         children => $self->_children($dir),
-    });
+    }));
 
     return $self;
 }
