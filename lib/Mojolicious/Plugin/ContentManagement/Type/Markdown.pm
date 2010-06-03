@@ -24,7 +24,7 @@ __PACKAGE__->attr( markdown => sub {
 
 sub translate {
     my ($self, $input) = @_;
-    return $self->markdown($input);
+    return $self->markdown->markdown($input);
 };
 
 !! 42;
