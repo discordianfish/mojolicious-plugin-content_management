@@ -4,6 +4,8 @@ use Mojolicious::Lite;
 use Test::Mojo;
 use Test::More tests => 2;
 
+app->log->level('error');
+
 # Content management configuration
 plugin content_management => {
     source      => 'filesystem',
@@ -15,9 +17,6 @@ plugin content_management => {
 
 # Managed content goes to the template 'page'
 get '/(*everything)' => ( content_management => 1 ) => 'page';
-
-# Calm down, please!
-app->log->level('error');
 
 # Go for it!
 my $t = Test::Mojo->new;
@@ -37,7 +36,7 @@ __DATA__
 
 @@ page.html.ep
 % layout 'default';
-%== $page->html;
+%== $content_page->html;
 
 @@ not_found.html.ep
 % layout 'default';

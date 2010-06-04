@@ -33,7 +33,7 @@ sub register {
         my $path = $c->tx->req->url->path->to_string;
         undef $page;
 
-        $c->stash( page => $page = $self->source->load($path) )
+        $c->stash( content_page => $page = $self->source->load($path) )
             if $self->source->exists($path);
     });
 
@@ -54,7 +54,15 @@ sub register {
         });
     }
 
+    $app->log->info('Content management loaded');
+
+    # Admin routes
     return unless $conf->{admin_route};
+    # TODO weiter
+    # TODO zwei Stufen von Adminsachen
+    # TODO 1. berabeiten
+    # TODO 2. löschen und neuerstellen
+    # TODO      dafür: Regex-Regeln was erlaubt ist! Wow, das ist toll!
 }
 
 sub _load {
