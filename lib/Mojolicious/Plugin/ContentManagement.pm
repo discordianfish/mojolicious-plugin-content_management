@@ -50,9 +50,15 @@ sub register {
 
         $app->renderer->add_helper( "content_$method" => sub {
             my ($c, $path) = @_;
-            return $self->source->$method($path)
+            return $self->source->$method($path);
         });
     }
+
+    # Helper generation for the type's translation method
+    $app->renderer->add_helper( content_translate => sub {
+        my ($c, $content) = @_;
+        return $self->type->translate($content);
+    });
 
     $app->log->info('Content management loaded');
 
@@ -66,8 +72,11 @@ sub register {
         cb          => undef, # overwrite callback bridges
     );
     my $r = $conf->{admin_route};
-    $r->route('/')->to(%defaults, action => 'list');
-    $r->route('/edit(*path)', path => qr(/.*))->to(%defaults, action => 'edit');
+    $r->route('/')->to(%defaults, action => 'list')
+        ->name('content_management_admin_list');
+    $r->route('/edit(*path)', path => qr(/.*))
+        ->to(%defaults, action => 'edit')
+        ->name('content_management_admin_edit');
 
     # TODO weiter
     # TODO zwei Stufen von Adminsachen

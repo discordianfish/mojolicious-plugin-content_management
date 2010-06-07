@@ -40,7 +40,8 @@ Mojolicious::Plugin::ManagedContent::Type::Markdown - managed markdown content
 
 =head1 DESCRIPTION
 
-Store your managed content as Markdown!
+Store your managed content as Markdown! If you're using this translator,
+consider using WMD: L<http://static.wmd-editor.com/v2/> for the admin interface!
 
 =head1 CONFIGURATION
 

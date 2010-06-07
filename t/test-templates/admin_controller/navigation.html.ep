@@ -1,0 +1,5 @@
+% my $query = $self->req->url->query->to_string;
+% $query = "?$query" if $query;
+<ul id="navigation">
+    <li><a href="/admin/<%== $query %>">List all pages</a></li>
+</ul>

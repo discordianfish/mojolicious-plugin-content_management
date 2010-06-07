@@ -16,7 +16,13 @@ my $admin_route = app->routes->bridge('/admin')->to( cb => sub {
     my $pass = $self->param('pass') || 'bar';
 
     return 1 if $user eq $pass;
-    return;
+    
+    $self->res->code(401);
+    $self->res->body(<<'EOF');
+<!doctype html><html>
+<head><title>Authorization required</title></head>
+<body><h1>401 Authorization required</h1></body>
+EOF
 });
 
 # Content management configuration

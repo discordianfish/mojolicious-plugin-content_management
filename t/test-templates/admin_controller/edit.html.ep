@@ -1,3 +1,5 @@
 % layout 'content_management_admin';
+%== include 'admin_controller/navigation';
 <h1>Edit!</h1>
 <p><%= $msg %></p>
+<p>Translated: <%== content_translate('foo **bar**') %></p>
