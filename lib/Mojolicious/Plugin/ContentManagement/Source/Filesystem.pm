@@ -155,6 +155,11 @@ which will give you three pages,
 You can place a number and a dash in front of the files or directories to
 define the ordering.
 
+=head1 CONFIGURATION
+
+With the C<source_conf> hash ref you can pass the C<directory> under which the
+content files will live. Default: C<'content'>
+
 =head1 METHODS
 
 This class implements the abstract methods of its base class 

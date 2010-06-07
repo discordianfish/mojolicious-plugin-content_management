@@ -27,6 +27,20 @@ Mojolicious::Plugin::ContentManagement::Source - abstract source base class
 A Mojolicious::Plugin::ContentManagement::Source is a thing that can load
 pages. This is an abstract base class.
 
+=head1 IMPLEMENTATIONS SHIPPED WITH THIS DISTRIBUTION
+
+=over 4
+
+=item L<Mojolicious::Plugin::ContentManagement::Source::Filesystem>
+
+Store content pages in a local directory
+
+=item L<Mojolicious::Plugin::ContentManagement::Source::DBI>
+
+Store content pages in a L<DBI> compatible database
+
+=back
+
 =head1 ATTRIBUTES
 
 =head2 app

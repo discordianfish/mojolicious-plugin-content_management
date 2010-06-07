@@ -21,6 +21,21 @@ Mojolicious::Plugin::ContentManagement::Type - abstract managed content type
 A Mojolicious::Plugin::ContentManagement::Type is a thing that can translate
 pages to html. This is an abstract base class.
 
+=head1 IMPLEMENTATIONS SHIPPED WITH THIS DISTRIBUTION
+
+=over 4
+
+=item L<Mojolicious::Plugin::ContentManagement::Type::Plain
+
+This translator actually does nothing. Perfect if you want to store plain
+html content pages
+
+=item L<Mojolicious::Plugin::ContentManagement::Type::Markdown
+
+A Markdown translator. See L<Text::Markdown> for more details.
+
+=back
+
 =head1 METHODS
 
 If you want to be a thing that can translate pages to html, you need to

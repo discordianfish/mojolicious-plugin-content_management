@@ -56,8 +56,19 @@ sub register {
 
     $app->log->info('Content management loaded');
 
-    # Admin routes
+    # No admin functionality needed shortcut
     return unless $conf->{admin_route};
+
+    # Admin routes
+    my %defaults = (
+        namespace   => 'Mojolicious::Plugin::ContentManagement',
+        controller  => 'admin_controller',
+        cb          => undef, # overwrite callback bridges
+    );
+    my $r = $conf->{admin_route};
+    $r->route('/')->to(%defaults, action => 'list');
+    $r->route('/edit(*path)', path => qr(/.*))->to(%defaults, action => 'edit');
+
     # TODO weiter
     # TODO zwei Stufen von Adminsachen
     # TODO 1. berabeiten
@@ -141,11 +152,60 @@ Version 0.01
 
     @@ page.html.ep
     % layout 'default';
-    %== $page->html;
+    %== $content_page->html;
 
 =head1 DESCRIPTION
 
-This is a simple but flexible content management solution for Mojolicious.
+This is a simple but flexible and extendable content management system that
+seamlessly integrates into your Mojolicious or Mojolicious::Lite app. You can
+use your own controllers around content generation and create your own bridge
+or waypoint routes for the optional admin interface.
+
+=head2 USAGE
+
+First, Mojolicious::Plugin::ContentManagement (called MPCM from now on) comes
+as a Mojolicious controller that can be used with the standard plugin code:
+
+    # Mojolicious
+    sub startup {
+        my $self = shift;
+        $self->plugin( content_management => $conf );
+        ...
+    }
+
+    # Mojolicious::Lite
+    plugin content_management => $conf;
+
+The C<$conf> scalar needs to be a hashref with the following keys:
+
+=over 4
+
+=item source
+
+The source class used to store and generate content pages.
+See L<Mojolicious::Plugin::ContentManagement::Source> for implementations.
+
+=item source_conf
+
+A configuration hashref that is passed to your C<source> class. See the
+documentation of your source class for more details.
+
+=item type
+
+The type class. This is a translator for your content pages.
+See L<Mojolicious::Plugin::ContentManagement::Type> for implementations.
+
+=item type_conf
+
+A configuration hashref that is passed to your C<type> class. See the
+documentation of your source class for more details.
+
+=item forbidden
+
+An arrayref with paths and path regexes which must not be managed by MPCM
+(because you need them for your own routes and actions).
+
+=back
 
 =head1 BUGS
 

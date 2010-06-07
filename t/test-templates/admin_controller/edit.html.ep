@@ -1,0 +1,3 @@
+% layout 'content_management_admin';
+<h1>Edit!</h1>
+<p><%= $msg %></p>
