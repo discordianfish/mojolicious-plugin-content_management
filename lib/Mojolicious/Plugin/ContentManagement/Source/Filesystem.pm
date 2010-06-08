@@ -7,6 +7,7 @@ use base 'Mojolicious::Plugin::ContentManagement::Source';
 
 use File::Spec;
 use Mojo::Asset::File;
+use IO::File;
 use Mojolicious::Plugin::ContentManagement::Page;
 use Carp;
 
@@ -37,16 +38,20 @@ sub _children {
         if (-f $name && -r $name) {
             
             # Retrieve content
-            my $content = Mojo::Asset::File->new(path => $name)->slurp;
-            my $html    = $self->type->translate($content);
-            my $title   = ($html =~ m|<h1>(.*?)</h1>|) ? $1 : $ppath;
+            my $raw  = Mojo::Asset::File->new(path => $name)->slurp;
+            my $html = $self->type->translate($raw);
+
+            # "Calculate" title
+            my $title = ($html =~ m|<h1>(.*?)</h1>|) ? $1 : $ppath;
 
             # Build page
             push @children, Mojolicious::Plugin::ContentManagement::Page->new({
-                path    => $ppath,
-                title   => $title,
-                html    => $html,
-                data    => { filename => $name },
+                path            => $ppath,
+                title           => $title,
+                html            => $html,
+                raw             => $raw,
+                title_editable  => 0,
+                data            => { filename => $name },
             });
         }
 
@@ -111,6 +116,31 @@ sub load { shift->tree->find(shift) }
 
 sub exists { shift->load(shift) }
 
+sub save {
+    my ($self, $new_page) = @_;
+
+    # Try to load the old page
+    my $old_page = $self->tree->find($new_page->path);
+
+    # Fail
+    croak 'That page doesn\'t exist! (' . $new_page->path . ')'
+        unless $old_page;
+
+    # Save new page raw content to file
+    my $filename = $old_page->data->{filename};
+    open my $fh, '>', $filename
+        or die "Couldn't write to file '$filename': $!";
+    print $fh $new_page->raw;
+
+    # Flush
+    $fh->close;
+
+    # Load the new tree
+    $self->build_tree;
+
+    return $self;
+}
+
 !! 42;
 __END__
 
@@ -163,9 +193,7 @@ content files will live. Default: C<'content'>
 =head1 METHODS
 
 This class implements the abstract methods of its base class 
-L<Mojolicious::Plugin::ContentManagement::Source> 
-
-There's one more method:
+L<Mojolicious::Plugin::ContentManagement::Source> and the following new ones:
 
 =head2 build_tree
 

@@ -46,19 +46,13 @@ sub register {
     });
 
     # Helper generation for source methods
-    for my $method (qw( exists list load )) {
+    for my $method (qw( exists list load save )) {
 
         $app->renderer->add_helper( "content_$method" => sub {
-            my ($c, $path) = @_;
-            return $self->source->$method($path);
+            my $c = shift;
+            return $self->source->$method(@_);
         });
     }
-
-    # Helper generation for the type's translation method
-    $app->renderer->add_helper( content_translate => sub {
-        my ($c, $content) = @_;
-        return $self->type->translate($content);
-    });
 
     $app->log->info('Content management loaded');
 
@@ -78,7 +72,7 @@ sub register {
         ->to(%defaults, action => 'edit')
         ->name('content_management_admin_edit');
 
-    # TODO weiter
+    # TODO DBI-Source
     # TODO zwei Stufen von Adminsachen
     # TODO 1. berabeiten
     # TODO 2. löschen und neuerstellen

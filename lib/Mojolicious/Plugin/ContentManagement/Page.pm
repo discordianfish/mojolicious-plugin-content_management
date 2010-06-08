@@ -7,7 +7,7 @@ use base 'Mojo::Base';
 
 use List::Util 'first';
 
-__PACKAGE__->attr([qw( path title html )] => '');
+__PACKAGE__->attr([qw( path title html raw title_editable )] => '');
 __PACKAGE__->attr( children => sub { [] } );
 __PACKAGE__->attr( data     => sub { {} } );
 
@@ -59,12 +59,27 @@ The title of the page, probably used for navigations
 
 The content of the page
 
+=head2 raw
+
+    my $raw = $page->raw;
+    $page   = $page->raw('## My first pony');
+
+The untranslated content of the page
+
 =head2 children
 
     my $children = $page->children;
     $page        = $page->children([ $page2, $page3 ]);
 
 Tree organisation of pages, probably used for navigations
+
+=head2 title_editable
+
+    my $editable = $page->title_editable;
+    $page        = $page->title_editable(0);
+
+If this is set to a true value, the admin interface offers an option to edit
+the title (which is not always possible, e. g. with the Filesystem source).
 
 =head2 data
 

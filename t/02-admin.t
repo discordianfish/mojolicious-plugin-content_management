@@ -29,12 +29,12 @@ EOF
 plugin content_management => {
     source          => 'filesystem',
     source_conf     => { directory => 'test-content' },
-    type            => 'plain',
+    type            => 'markdown', # TODO plain
     forbidden       => [ qr(/ba.*) ],
     admin_route     => $admin_route,
 };
 
-# TODO weg samt template
+# Managed content goes here
 get '/(*everything)' => ( content_management => 1 ) => 'page';
 
 app->start;

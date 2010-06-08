@@ -13,7 +13,9 @@ sub exists  { croak 'Method unimplemented by subclass!' }
 
 sub list    { croak 'Method unimplemented by subclass!' }
 
-sub load    { croak 'Method unimplemented by subclass' }
+sub load    { croak 'Method unimplemented by subclass!' }
+
+sub save    { croak 'Method unimplemented by subclass!' }
 
 !! 42;
 __END__
@@ -25,7 +27,7 @@ Mojolicious::Plugin::ContentManagement::Source - abstract source base class
 =head1 DESCRIPTION
 
 A Mojolicious::Plugin::ContentManagement::Source is a thing that can load
-pages. This is an abstract base class.
+and write pages. This is an abstract base class.
 
 =head1 IMPLEMENTATIONS SHIPPED WITH THIS DISTRIBUTION
 
@@ -67,8 +69,8 @@ regular expressions
 
 =head1 METHODS
 
-If you want to be a thing that can load pages, you need to implement the
-following methods:
+If you want to be a thing that can load and save pages, you need to implement
+the following methods:
 
 =head2 exists
 
@@ -89,6 +91,12 @@ L<Mojolicious::Plugin::ContentManagement::Page> objects.
     my $page = $source->load('/foo/bar.html');
 
 This method loads a L<Mojolicious::Plugin::ContentManagement::Page> object.
+
+=head2 save
+
+    $source = $source->save($page);
+
+This method saves a L<Mojolicious::Plugin::ContentManagement::Page> object.
 
 =head1 SEE ALSO
 

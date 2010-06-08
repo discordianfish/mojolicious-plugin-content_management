@@ -1,5 +1,18 @@
 % layout 'content_management_admin';
 %== include 'admin_controller/navigation';
-<h1>Edit!</h1>
-<p><%= $msg %></p>
-<p>Translated: <%== content_translate('foo **bar**') %></p>
+<h1>Edit: <%= $page->title %></h1>
+<form action="" method="post">
+<% if ($page->title_editable) { %>
+<p>
+    <label for="title">Title</label>:
+    <input type="text" name="title" id="title" value="<%= $page->title %>">
+</p>
+<% } %>
+<textarea name="raw" id="raw"><%= $page->raw %></textarea>
+<p><input type="submit" value="Update!"></p>
+</form>
+<hr>
+<p>Preview:</p>
+<div id="content_management_preview">
+%== $page->html
+</div>
