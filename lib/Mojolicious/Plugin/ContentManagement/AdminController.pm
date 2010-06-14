@@ -15,7 +15,7 @@ sub edit {
 
     # Try to get the page
     my $path = $self->param('path');
-    my $page = $self->helper(content_load => $path);
+    my $page = $self->helper(content_load => $path)->clone;
 
     # Shortcut
     unless ($page) {
@@ -27,14 +27,19 @@ sub edit {
     if (defined(my $raw = $self->param('raw'))) {
 
         # Build the new page
-        my $title = $self->param('title') || '';
-        $page->title($title)->raw($raw);
+        my $title   = $self->param('title') || 'Preview';
+        my $html    = $self->helper(content_translate => $raw);
+        $page->title($title)->raw($raw)->html($html);
 
-        # Save to source
-        $self->helper(content_save => $page->raw($raw));
+        # Not just a preview
+        if (defined( $self->param('update_button') )) {
 
-        # Get the fresh content page
-        $page = $self->helper(content_load => $path);
+            # Save to source
+            $self->helper(content_save => $page);
+
+            # Get the fresh content page
+            $page = $self->helper(content_load => $path);
+        }
     }
 
     # View

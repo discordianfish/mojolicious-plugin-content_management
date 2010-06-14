@@ -8,10 +8,11 @@
 </p>
 <% } %>
 <textarea name="raw" id="raw"><%= $page->raw %></textarea>
-<p><input type="submit" value="Update!"></p>
+<p>
+    <input type="submit" value="Preview!" name="preview_button">
+    <input type="submit" value="Update!" name="update_button">
+</p>
 </form>
 <hr>
 <p><strong>Preview:</strong></p>
-<div id="preview">
-%== $page->html
-</div>
+<div id="preview"><%== $page->html %></div>

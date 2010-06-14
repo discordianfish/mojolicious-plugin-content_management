@@ -11,6 +11,14 @@ __PACKAGE__->attr([qw( path title html raw title_editable )] => '');
 __PACKAGE__->attr( children => sub { [] } );
 __PACKAGE__->attr( data     => sub { {} } );
 
+sub clone {
+    my $self = shift;
+    my $new  = $self->new;
+    $new->path($self->path)->title($self->title)->html($self->html)
+        ->raw($self->raw)->title_editable($self->title_editable)
+        ->children($self->children)->data($self->data);
+}
+
 sub find {
     my ($self, $path) = @_;
 
@@ -89,6 +97,12 @@ the title (which is not always possible, e. g. with the Filesystem source).
 Source specific data. Please do not use it unless you're developing a source.
 
 =head1 METHODS
+
+=head2 clone
+
+    my $page2 = $page1->clone;
+
+Creates a clone of itself. Attention: children and data shared!
 
 =head2 find
 

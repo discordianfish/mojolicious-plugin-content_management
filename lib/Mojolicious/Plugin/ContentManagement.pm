@@ -54,6 +54,12 @@ sub register {
         });
     }
 
+    # Helper for type translation
+    $app->renderer->add_helper( content_translate => sub {
+        my $c = shift;
+        return $self->type->translate(@_);
+    });
+
     $app->log->info('Content management loaded');
 
     # No admin functionality needed shortcut

@@ -25,12 +25,12 @@ pages to html. This is an abstract base class.
 
 =over 4
 
-=item L<Mojolicious::Plugin::ContentManagement::Type::Plain
+=item L<Mojolicious::Plugin::ContentManagement::Type::Plain>
 
 This translator actually does nothing. Perfect if you want to store plain
 html content pages
 
-=item L<Mojolicious::Plugin::ContentManagement::Type::Markdown
+=item L<Mojolicious::Plugin::ContentManagement::Type::Markdown>
 
 A Markdown translator. See L<Text::Markdown> for more details.
 
