@@ -1,10 +1,9 @@
 % layout 'content_management_admin';
-%== include 'admin_controller/navigation';
-<h1>Edit: <%= $page->title %></h1>
-<form action="" method="post">
+<h2>Edit: <%= $page->title %></h2>
+<form action="" method="post" id="editform">
 <% if ($page->title_editable) { %>
 <p>
-    <label for="title">Title</label>:
+    <label for="title">Title</label>:<br>
     <input type="text" name="title" id="title" value="<%= $page->title %>">
 </p>
 <% } %>
@@ -12,7 +11,7 @@
 <p><input type="submit" value="Update!"></p>
 </form>
 <hr>
-<p>Preview:</p>
-<div id="content_management_preview">
+<p><strong>Preview:</strong></p>
+<div id="preview">
 %== $page->html
 </div>

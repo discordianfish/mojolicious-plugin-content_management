@@ -1,5 +1,4 @@
 % layout 'content_management_admin';
-%== include 'admin_controller/navigation';
 % my $list; # called recursively
 <% $list = {%>
     <% my ($children) = @_; %>

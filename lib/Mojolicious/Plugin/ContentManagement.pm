@@ -74,7 +74,7 @@ sub register {
 
     # TODO DBI-Source
     # TODO zwei Stufen von Adminsachen
-    # TODO 1. berabeiten
+    # TODO 1. bearbeiten
     # TODO 2. löschen und neuerstellen
     # TODO      dafür: Regex-Regeln was erlaubt ist! Wow, das ist toll!
 }
