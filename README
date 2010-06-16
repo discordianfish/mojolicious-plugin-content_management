@@ -1,0 +1,81 @@
+NAME
+
+    Mojolicious::Plugin::ContentManagement - Content management for Mojolicious
+
+VERSION
+
+    Version 0.01
+
+SYNOPSIS
+
+        use Mojolicious::Lite;
+
+        # Change this!
+        my $admin_route = app->routes->bridge('/admin')->to( cb => sub {
+            my $self = shift;
+            my $user = $self->param('user') || 'foo';
+            my $pass = $self->param('pass') || 'bar';
+
+            return 1 if $user eq $pass;
+            
+            $self->res->code(401);
+            $self->res->body(<<'EOF');
+        <!doctype html><html>
+        <head><title>Authorization required</title></head>
+        <body><h1>401 Authorization required</h1></body>
+        EOF
+        });
+
+        plugin content_management => {
+            source      => 'filesystem',
+            source_conf => { directory => 'content' },
+            type        => 'markdown',
+            type_conf   => { empty_element_suffix => '>' },
+            forbidden   => [ '/foo.html', qr|/bar/\d{4}/baz.html| ],
+            admin_route => $admin_route,
+        };
+
+        get '/(*everything)' => ( content_management => 1 ) => 'page';
+
+        # your webapp stuff goes here,
+        # avoid routes that aren't matched by the forbidden rules above
+
+        __DATA__
+
+        @@ page.html.ep
+        % layout 'default';
+        %== $content_page->html;
+
+DESCRIPTION
+
+    This is a simple but flexible and extendable content management system
+    that seamlessly integrates into your Mojolicious or Mojolicious::Lite
+    app. You can use your own actions to display generated content and
+    create your own bridge or waypoint routes for the optional admin
+    interface.
+
+INSTALLATION
+
+    To install this module, run the following commands:
+
+        perl Makefile.PL
+        make
+        make test
+        make install
+
+SUPPORT AND DOCUMENTATION
+
+    After installing, you can find documentation for this module with the
+    perldoc command
+
+        perldoc Mojolicious::Plugin::ContentManagement
+
+    You can also look for information at this module's home base at
+    http://github.com/memowe/mojolicious-plugin-content_management
+
+AUTHOR, COPYRIGHT AND LICENSE
+
+    Copyright (c) 2010 Mirko Westermeier, "<mail at memowe.de>"
+
+    Released under the MIT license (see MIT-LICENSE) for details.
+
