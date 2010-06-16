@@ -139,12 +139,29 @@ Version 0.01
 
     use Mojolicious::Lite;
 
+    # Change this!
+    my $admin_route = app->routes->bridge('/admin')->to( cb => sub {
+        my $self = shift;
+        my $user = $self->param('user') || 'foo';
+        my $pass = $self->param('pass') || 'bar';
+
+        return 1 if $user eq $pass;
+        
+        $self->res->code(401);
+        $self->res->body(<<'EOF');
+    <!doctype html><html>
+    <head><title>Authorization required</title></head>
+    <body><h1>401 Authorization required</h1></body>
+    EOF
+    });
+
     plugin content_management => {
         source      => 'filesystem',
         source_conf => { directory => 'content' },
         type        => 'markdown',
         type_conf   => { empty_element_suffix => '>' },
         forbidden   => [ '/foo.html', qr|/bar/\d{4}/baz.html| ],
+        admin_route => $admin_route,
     };
 
     get '/(*everything)' => ( content_management => 1 ) => 'page';
