@@ -1,4 +1,4 @@
-package Mojolicious::Plugin::ContentManagement::Source::DBI;
+package Mojolicious::Plugin::ContentManagement::Source::Dbi;
 
 use warnings;
 use strict;
