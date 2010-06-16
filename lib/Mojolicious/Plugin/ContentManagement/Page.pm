@@ -23,6 +23,7 @@ sub find {
     my ($self, $path) = @_;
 
     # Shortcuts
+    return unless $path;
     return $self if $path eq $self->path;
     return unless $self->children;
 
