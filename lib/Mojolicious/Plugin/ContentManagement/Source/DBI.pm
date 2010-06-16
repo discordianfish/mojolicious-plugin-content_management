@@ -12,20 +12,25 @@ __PACKAGE__->attr([qw( dbh prefix )] => '');
 
 __PACKAGE__->attr( table => sub {
     my $self = shift;
-    return $self->prefix . '_pages';
+    return $self->prefix . '_pages' if $self->prefix;
     return 'pages';
 });
 
-__PACKAGE__->attr( one_sth => sub {
+# Build SQL statement handles
+__PACKAGE__->attr( sth => sub {
     my $self    = shift;
     my $table   = $self->table;
-    $self->dbh->prepare("SELECT * FROM $table WHERE path = ?");
-});
 
-__PACKAGE__->attr( all_sth => sub {
-    my $self    = shift;
-    my $table   = $self->table;
-    $self->dbh->prepare("SELECT * FROM $table ORDER BY PATH ASC");
+    my %sql = (
+        one         => "SELECT * FROM $table WHERE path = ?",
+        children    => "SELECT * FROM $table WHERE parent = ? ORDER BY sort",
+        all         => "SELECT * FROM $table ORDER BY sort",
+        save        => "UPDATE $table SET title = ?, raw = ? WHERE path = ?",
+    );
+
+    $sql{$_} = $self->dbh->prepare($sql{$_}) for keys %sql;
+    
+    return \%sql;
 });
 
 sub _forbidden_check {
@@ -38,32 +43,91 @@ sub _forbidden_check {
     return;
 }
 
-sub list { die 'unimplemented!' }
+sub _build_page_from_hash { # no children handling
+    my ($self, $h) = @_;
+
+    Mojolicious::Plugin::ContentManagement::Page->new({
+        path            => $h->{path},
+        title           => $h->{title},
+        html            => $self->type->translate($h->{raw}),
+        raw             => $h->{raw},
+        title_editable  => 1,
+        children        => [],
+        data            => {
+            parent  => $h->{parent},
+            sort    => $h->{sort},
+        },
+    });
+}
+
+sub list {
+    my $self = shift;
+
+    # Fetch all pages
+    my $sth = $self->sth->{all};
+    $sth->execute;
+    my $pages = $sth->fetchall_arrayref({});
+
+    # Drop forbidden pages
+    $pages = [ grep { ! $self->_forbidden_check($_->{path}) } @$pages ];
+
+    # Build pages
+    $pages = [ map { $self->_build_page_from_hash($_) } @$pages ];
+
+    # Root
+    my $root = Mojolicious::Plugin::ContentManagement::Page->new({
+        children => $pages,
+    });
+
+    # Come together, families!
+    my @root_children;
+    foreach my $page (@$pages) {
+
+        # Has a parent!
+        if (my $parent = $root->find($page->data->{parent})) {
+            push @{ $parent->children }, $page;
+        }
+        # Childrens
+        else {
+            push @root_children, $page;
+        }
+    }
+
+    return $root->children(\@root_children);
+}
 
 sub load {
     my ($self, $path) = @_;
     return if $self->_forbidden_check($path);
 
-    my $sth = $self->one_sth->execute($path);
+    # Fetch the page
+    my $sth = $self->sth->{one};
+    $sth->execute($path);
     my $row = $sth->fetchrow_hashref;
 
     return unless $row;
 
-    return Mojolicious::Plugin::ContentManagement::Page->new({
-        path            => $path,
-        title           => $row->{title},
-        html            => $self->type->translate($row->{raw}),
-        raw             => $row->{raw},
-        title_editable  => 1,
-        children        => [], # hm!
-    });
+    # Build the page
+    my $page = $self->_build_page_from_hash($row);
+
+    # Fetch the children
+    $sth = $self->sth->{children};
+    $sth->execute($path);
+    my $children = $sth->fetchall_arrayref({});
+
+    # Build children pages
+    $children = [ map { $self->_build_page_from_hash($_) } @$children ];
+
+    return $page->children($children);
 }
 
 sub exists {
     my ($self, $path) = @_;
     return if $self->_forbidden_check($path);
 
-    my $sth = $self->one_sth->execute($path);
+    # Fetch the page
+    my $sth = $self->sth->{one};
+    $sth->execute($path);
     my $row = $sth->fetchrow_hashref;
 
     return 1 if $row;
@@ -72,9 +136,14 @@ sub exists {
 
 sub save {
     my ($self, $new_page) = @_;
-    return if $self->_forbidden_check($new_page->path);
 
-    die 'unimplemented!';
+    # Shortcut
+    return unless $self->exists($new_page->path);
+
+    # Save
+    my $sth = $self->sth->{save};
+    $sth->execute($new_page->title, $new_page->raw, $new_page->path);
+
     return $self;
 }
 
@@ -83,13 +152,15 @@ __END__
 
 =head1 NAME
 
-Mojolicious::Plugin::ContentManagement::Source::Filesystem - content from files
+Mojolicious::Plugin::ContentManagement::Source::DBI - content from database
 
 =head1 SYNOPSIS
 
+    my $dsn = DBI->connect(...);
+
     # Mojolicious
     $self->plugin( content_management => {
-        source      => 'filesystem',
+        source      => 'dbi',
         source_conf => { directory => 'content' },
         ...
     });
