@@ -156,58 +156,57 @@ Mojolicious::Plugin::ContentManagement::Source::DBI - content from database
 
 =head1 SYNOPSIS
 
-    my $dsn = DBI->connect(...);
+    my $dbh = DBI->connect(...);
 
     # Mojolicious
     $self->plugin( content_management => {
         source      => 'dbi',
-        source_conf => { directory => 'content' },
+        source_conf => { dbh => $dbh, prefix => 'foo' },
         ...
     });
 
     # Mojolicious::Lite
     plugin content_management => {
-        source      => 'filesystem',
-        source_conf => { directory => 'content' },
+        source      => 'dbi',
+        source_conf => { dbh => $dbh, prefix => 'foo' },
         ...
     };
 
 =head1 DESCRIPTION
 
-Now you can use the filesystem for content management. With the settings above
-you can have a directory structure like this:
+This is the database source, using DBI. You just need a table like this:
 
-    project_dir/
-        content/
-            01-foo.html
-            01-foo/
-                bar.html
-            02-baz.html
+    CREATE TABLE foo_pages (
+        path    VARCHAR(100),
+        parent  VARCHAR(100),
+        sort    VARCHAR(10),
+        title   VARCHAR(100),
+        raw     VARCHAR(10000),
+        PRIMARY KEY (path)
+    );
 
-which will give you three pages,
+Create a few rows and the pages are available in your webapp immediately. Two
+example pages:
 
-    /foo.html
-    /foo/bar.html
-    /baz.html
+    INSERT INTO foo_pages (path, parent, sort, title, raw)
+        VALUES ('/foo.html', NULL, '03', 'This is /foo.html', 'Yay');
+    INSERT INTO foo_pages (path, parent, sort, title, raw)
+        VALUES ('/foo/bar.html', '/foo.html', '02', 'This is /foo/bar.html', 'Yay');
 
-You can place a number and a dash in front of the files or directories to
-define the ordering.
+As you can see, the parent field is used to reference the parent of a page,
+the sort field is used to defined the order of all pages on the same level.
 
 =head1 CONFIGURATION
 
-With the C<source_conf> hash ref you can pass the C<directory> under which the
-content files will live. Default: C<'content'>
+With the C<source_conf> hash ref you can pass the C<dbh>, which must be a
+DBI database handle. Also you can pass a C<prefix> for the pages table. Without
+the prefix, the table C<pages> is used, if you pass C<foo> as a C<prefix>,
+the table C<foo_pages> is used.
 
 =head1 METHODS
 
-This class implements the abstract methods of its base class 
-L<Mojolicious::Plugin::ContentManagement::Source> and the following new ones:
-
-=head2 build_tree
-
-    my $filesystem = $filesystem->build_tree;
-
-You can call this method to refresh the page tree from the filesystem.
+This class implements all abstract methods of its base class 
+L<Mojolicious::Plugin::ContentManagement::Source>
 
 =head1 SEE ALSO
 

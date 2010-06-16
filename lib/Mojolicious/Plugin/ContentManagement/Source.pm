@@ -37,7 +37,7 @@ and write pages. This is an abstract base class.
 
 Store content pages in a local directory
 
-=item L<Mojolicious::Plugin::ContentManagement::Source::DBI>
+=item L<Mojolicious::Plugin::ContentManagement::Source::Dbi>
 
 Store content pages in a L<DBI> compatible database
 

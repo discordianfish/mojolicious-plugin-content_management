@@ -77,12 +77,6 @@ sub register {
     $r->route('/edit(*path)', path => qr(/.*))
         ->to(%defaults, action => 'edit')
         ->name('content_management_admin_edit');
-
-    # TODO DBI-Source
-    # TODO zwei Stufen von Adminsachen
-    # TODO 1. bearbeiten
-    # TODO 2. löschen und neuerstellen
-    # TODO      dafür: Regex-Regeln was erlaubt ist! Wow, das ist toll!
 }
 
 sub _load {
@@ -155,7 +149,8 @@ Version 0.01
 
     get '/(*everything)' => ( content_management => 1 ) => 'page';
 
-    #...
+    # your webapp stuff goes here,
+    # avoid routes that aren't matched by the forbidden rules above
 
     __DATA__
 
@@ -167,17 +162,16 @@ Version 0.01
 
 This is a simple but flexible and extendable content management system that
 seamlessly integrates into your Mojolicious or Mojolicious::Lite app. You can
-use your own controllers around content generation and create your own bridge
+use your own actions to display generated content and create your own bridge
 or waypoint routes for the optional admin interface.
 
-=head2 USAGE
-
 First, Mojolicious::Plugin::ContentManagement (called MPCM from now on) comes
-as a Mojolicious controller that can be used with the standard plugin code:
+as a Mojolicious plugin that can be used with the standard plugin code:
 
     # Mojolicious
     sub startup {
         my $self = shift;
+
         $self->plugin( content_management => $conf );
         ...
     }
@@ -185,14 +179,23 @@ as a Mojolicious controller that can be used with the standard plugin code:
     # Mojolicious::Lite
     plugin content_management => $conf;
 
+=head2 CONFIGURATION
+
 The C<$conf> scalar needs to be a hashref with the following keys:
 
 =over 4
 
 =item source
 
-The source class used to store and generate content pages.
-See L<Mojolicious::Plugin::ContentManagement::Source> for implementations.
+The source class used to store and generate content pages. The value of this
+option is camelized before used to find the right class, for example you write
+
+    source => 'filesystem'
+
+and MPCM loads L<Mojolicious::Plugin::ContentManagement::Source::Filesystem>
+for you.
+
+See L<Mojolicious::Plugin::ContentManagement::Source> for more implementations.
 
 =item source_conf
 
@@ -201,7 +204,8 @@ documentation of your source class for more details.
 
 =item type
 
-The type class. This is a translator for your content pages.
+The type class. This is a translator for your content pages. The value of this
+option is camelized before used, like the C<source>.
 See L<Mojolicious::Plugin::ContentManagement::Type> for implementations.
 
 =item type_conf
@@ -214,7 +218,70 @@ documentation of your source class for more details.
 An arrayref with paths and path regexes which must not be managed by MPCM
 (because you need them for your own routes and actions).
 
+=item admin_route
+
+If you want an admin interface for MPCM, you can pass a route object, so MPCM
+can set up routes to let you list or edit the pages. A typical way to do this
+is to set up a bridge for the path '/admin' with some kind of authentication
+and passing this bridge to MPCM:
+
+    my $admin_route = $routes->bridge('/admin')->to( cb => sub {
+        my $self = shift;
+        my $user = $self->param('user') || 'foo';
+        my $pass = $self->param('pass') || 'bar';
+
+        return 1 if $user eq $pass;
+        
+        $self->res->code(401);
+        $self->res->body(<<'EOF');
+    <!doctype html><html>
+    <head><title>Authorization required</title></head>
+    <body><h1>401 Authorization required</h1></body>
+    EOF
+    });
+
+I'm sure you can do that more securely, but I hope it shows what I mean. The
+C<$admin_route> can now be passed to MPCM and it will create things like
+C</admin/edit/foo.html> which are only accessable if the user passes the bridge.
+
 =back
+
+=head2 CONTENT HANDLING
+
+You need to set up a controller or something like that which displays the
+managed content. But how do you dispatch? No problem, this is what the
+C<content_management> condition is for:
+
+    # Mojolicious::Lite
+    get '/(*everything)' => ( content_management => 1 ) => sub {
+        my $self = shift;
+        # do something with $self->stash('content_page')
+    }) => 'content';
+
+    # Mojolicious
+    $r->route('/(*everything)')->over( content_management => 1 )
+      ->to('foo#content');
+
+If this matches, you have access to the stash element 'content_page', which is
+a L<Mojolicious::Plugin::ContentManagement::Page> object. For most cases, this
+will do it:
+
+    get '/(*everything)' => ( content_management => 1 ) => 'page'
+
+    __DATA__
+
+    @@page.html.ep
+    % layout 'default';
+    %== $content_page->html
+
+=head2 GENERATING THE ADMIN TEMPLATES
+
+The (optional) admin interface ships with templates. This is how you generate
+them in your app home dir:
+
+    $ mojolicious generate content_management_templates
+
+Change the templates if you want and if you know what you're doing.
 
 =head1 BUGS
 
