@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 
 use Test::More tests => 7;
-use Mojolicious::Plugin::ContentManagement::Source::DBI;
+use Mojolicious::Plugin::ContentManagement::Source::Dbi;
 use Mojolicious::Plugin::ContentManagement::Type::Plain;
 use DBI;
 use FindBin '$Bin';
@@ -10,7 +10,7 @@ use FindBin '$Bin';
 my $dsn     = "dbi:SQLite:dbname=$Bin/test-db/db.sqlite";
 my $dbh     = DBI->connect($dsn, '', '') or die $DBI::errstr;
 my $type    = Mojolicious::Plugin::ContentManagement::Type::Plain->new;
-my $source  = Mojolicious::Plugin::ContentManagement::Source::DBI->new({
+my $source  = Mojolicious::Plugin::ContentManagement::Source::Dbi->new({
     type        => $type,
     forbidden   => [ qr(/ba.*) ],
     dbh         => $dbh,
@@ -45,11 +45,7 @@ my $foo_page = $source->load('/foo.html');
 is_deeply($foo_page, $foo, "got the right page object");
 
 # list
-my $root = {
-    path        => '',
-    children    => [$foo],
-};
-is_deeply($source->list, $root, "got the right page list");
+is_deeply($source->list, [$foo], "got the right page list");
 
 # save
 my $foo_new = $foo_page->clone;

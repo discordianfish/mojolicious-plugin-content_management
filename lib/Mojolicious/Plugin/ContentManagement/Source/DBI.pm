@@ -93,7 +93,7 @@ sub list {
         }
     }
 
-    return $root->children(\@root_children);
+    return \@root_children;
 }
 
 sub load {
