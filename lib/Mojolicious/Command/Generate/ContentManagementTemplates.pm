@@ -137,14 +137,10 @@ address {
         <h1>Content Management Admin Interface</h1>
 %# Navigation
 % my $query = $self->req->url->query->to_string;
+% my $list  = url_for('content_management_admin_list');
 % $query = "?$query" if $query;
         <ul id="navigation">
-            <li><a href="/admin/<%== $query %>">List all pages</a></li>
-% if (stash('page')) {
-            <li><a href="<%== stash('page')->path %>">
-                Go to <%= stash('page')->path %>
-            </a></li>
-% }
+            <li><a href="<%== $list . $query %>">List all pages</a></li>
         </ul>
 %== content
     </div>

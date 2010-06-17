@@ -1,5 +1,6 @@
 *.sw[a-p]
 *.DS_Store
+*.bak
 blib*
 Makefile
 Makefile.old
