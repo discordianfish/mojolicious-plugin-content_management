@@ -1,6 +1,6 @@
 package Mojolicious::Plugin::ContentManagement;
 
-our $VERSION = '0.01';
+our $VERSION = '0.011';
 
 use warnings;
 use strict;
@@ -133,7 +133,7 @@ Mojolicious::Plugin::ContentManagement - Content management for Mojolicious
 
 =head1 VERSION
 
-Version 0.01
+Version 0.011
 
 =head1 SYNOPSIS
 
