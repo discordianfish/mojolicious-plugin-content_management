@@ -166,7 +166,7 @@ address {
         <% my $query = $self->req->url->query->to_string; %>
         <% $query = "?$query" if $query; %>
         <li><a href="<%== "$url$query" %>">
-            <%= $child->title %>
+            <%= $child->title || $child->path %>
         </a>
         <%== $list->($child->children) if @{$child->children} %>
         </li>
