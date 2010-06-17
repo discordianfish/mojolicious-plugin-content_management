@@ -69,6 +69,7 @@ sub register {
     my %defaults = (
         namespace   => 'Mojolicious::Plugin::ContentManagement',
         controller  => 'admin_controller',
+        cb          => undef, # overwrite bridges with callbacks
     );
     my $r = $conf->{admin_route};
     $r->route('/')->to(%defaults, action => 'list')
