@@ -112,22 +112,25 @@ sub build_tree {
 
 sub list { shift->tree->children }
 
-sub load { shift->tree->find(shift) }
+sub load {
+    my $self = shift;
+    my $path = shift;
+    
+    return $self->tree->find($path) || Mojolicious::Plugin::ContentManagement::Page->new( path =>  $path);
+}
 
 sub exists { shift->load(shift) }
 
 sub save {
     my ($self, $new_page) = @_;
 
-    # Try to load the old page
-    my $old_page = $self->tree->find($new_page->path);
+    die "no path specified"
+        unless $new_page->{path};
 
-    # Fail
-    croak 'That page doesn\'t exist! (' . $new_page->path . ')'
-        unless $old_page;
+    my $content_dir = $self->app->home->rel_dir($self->directory);
+    my $filename = File::Spec->catdir($content_dir, $new_page->{path});
 
     # Save new page raw content to file
-    my $filename = $old_page->data->{filename};
     open my $fh, '>', $filename
         or die "Couldn't write to file '$filename': $!";
     print $fh $new_page->raw;

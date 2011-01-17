@@ -40,8 +40,7 @@ sub register {
     # Routes condition to detect managed content
     $app->routes->add_condition( content_management => sub {
         my ($route, $tx, $captures, $arg) = @_;
-
-        return $captures if $arg && $page;
+        return $captures if $arg && $page->{title}; # render page, if not empty
         return;
     });
 
