@@ -15,6 +15,9 @@ sub edit {
 
     # Try to get the page
     my $path = $self->param('path');
+    $path = $self->param('index_name')
+        if ($path eq '/');
+
     my $page = $self->helper(content_load => $path)->clone;
 
     # Shortcut

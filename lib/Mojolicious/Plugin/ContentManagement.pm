@@ -33,6 +33,9 @@ sub register {
         my $path = $c->tx->req->url->path->to_string;
         undef $page;
 
+        $path = $conf->{index_name} || '/_index'
+            if $path eq '/';
+
         $c->stash( content_page => $page = $self->source->load($path) )
             if $self->source->exists($path);
     });
@@ -68,6 +71,7 @@ sub register {
     my %defaults = (
         namespace   => 'Mojolicious::Plugin::ContentManagement',
         controller  => 'admin_controller',
+        index_name  => $conf->{index_name} || '/_index',
         cb          => undef, # overwrite bridges with callbacks
     );
     my $r = $conf->{admin_route};
