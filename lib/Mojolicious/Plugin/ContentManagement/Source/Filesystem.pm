@@ -42,7 +42,8 @@ sub _children {
             my $html = $self->type->translate($raw);
 
             # "Calculate" title
-            my $title = ($html =~ m|<h1>(.*?)</h1>|) ? $1 : $ppath;
+            # my $title = ($html =~ m|<h1>(\w*?)</h1>|) ? $1 : $ppath;
+            my $title = $ppath; # that was crude..
 
             # Build page
             push @children, Mojolicious::Plugin::ContentManagement::Page->new({
